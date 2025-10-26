@@ -20,7 +20,7 @@
     @classmethod
     def update(cls):
         for updatable in cls.updatables:
-            if not updatable.is_active:
+            if not updatable.is_active():
                 continue
             updatable.update()
 
@@ -46,7 +46,7 @@ class DrawManager:
     @classmethod
     def draw(cls):
         for drawable in cls.drawables:
-            if not drawable.is_active:
+            if not drawable.is_active():
                 continue
             drawable.draw()
 
@@ -70,11 +70,18 @@ class CollisionManager:
         cls.collidables.clear()
 
     @classmethod
-    def handle_collisions(cls):
-        for collidable in cls.collidables:
-            if not collidable.is_active:
-                continue
-            collidable.handle_collisions()
+    def check_collisions(cls):
+        for i in range(len(cls.collidables) - 1):
+            for j in range(i + 1, len(cls.collidables)):
+                if not cls.collidables[i].is_active() or not cls.collidables[j].is_active():
+                    continue
+                check1 = cls.collidables[i].can_collide_with(cls.collidables[j])
+                check2 = cls.collidables[j].can_collide_with(cls.collidables[i])
+                if (check1 or check2) and cls.collidables[i].does_collide(cls.collidables[j]):
+                    if check1:
+                        cls.collidables[i].on_collision(cls.collidables[j])
+                    if check2:
+                        cls.collidables[j].on_collision(cls.collidables[i])
 
 class ScoreManager:
     scores = []
@@ -109,7 +116,8 @@ class EventManager:
     def subscribe(cls, event_name, subscriber):
         if event_name not in cls.subscribers:
             cls.subscribers[event_name] = []
-        cls.subscribers[event_name].append(subscriber)
+        if subscriber not in cls.subscribers[event_name]:
+            cls.subscribers[event_name].append(subscriber)
 
     @classmethod
     def unsubscribe(cls, event_name, subscriber):

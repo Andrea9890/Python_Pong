@@ -1,14 +1,18 @@
 ﻿import pyxel
 
-from Engine.Enums import Direction
-from Engine.Managers import ScoreManager
+from Engine.Enums import Direction, CollisionType
+from Engine.Managers import ScoreManager, CollisionManager
 from Game.GameObject import GameObject
 
 class Player(GameObject):
-    def __init__(self, object_id, x, y, width, height, direction):
-        super().__init__(object_id, x, y, width, height)
+    def __init__(self, object_id, x, y, width, height, direction, color = 7):
+        super().__init__(object_id, x, y, width, height, color)
         self.direction = direction
         self.speed_y = 2
+        self.collision_enabled = True
+        self.type = CollisionType.PLAYER
+        self.add_collision_type(CollisionType.BALL)
+        CollisionManager.add_collidable(self)
         ScoreManager.register_player(object_id)
 
     # Player movement
@@ -37,4 +41,4 @@ class Player(GameObject):
         self.handle_screen_collision()
 
     def draw(self):
-        pyxel.rect(self.x - self.width * 0.5, self.y - self.height * 0.5, self.width, self.height, 7)
+        pyxel.rect(self.x - self.width * 0.5, self.y - self.height * 0.5, self.width, self.height, self.color)

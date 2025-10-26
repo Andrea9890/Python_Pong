@@ -10,9 +10,8 @@ class CountdownUI(GameObject):
         super().__init__(object_id, x, y, width, height)
         self.countdown_timer = 3
         self.side = None
+        self.active = False
         EventManager.subscribe("score_changed", self.on_score_changed)
-        UpdateManager.remove_updatable(self)
-        DrawManager.remove_drawable(self)
 
     def on_score_changed(self, side):
         self.side = side
@@ -21,13 +20,9 @@ class CountdownUI(GameObject):
 
     def hide(self):
         self.active = False
-        UpdateManager.remove_updatable(self)
-        DrawManager.remove_drawable(self)
 
     def show(self):
         self.active = True
-        UpdateManager.add_updatable(self)
-        DrawManager.add_drawable(self)
 
     def reset(self):
         self.countdown_timer = 3
